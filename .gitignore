@@ -1,0 +1,31 @@
+# Compilation Eclipse
+bin/
+bin-test/
+
+# Configuration locale (contient le mot de passe MySQL)
+db.properties
+
+# Logs
+logs/
+*.log
+
+# IntelliJ
+.idea/
+*.iml
+out/
+
+# Eclipse : .project, .classpath, .settings/ et les .launch SONT partagés (configuration commune)
+.metadata/
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

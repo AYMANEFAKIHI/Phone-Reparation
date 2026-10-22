@@ -1,0 +1,5 @@
+# Copier ce fichier en "db.properties" (à la racine du projet) et l'adapter.
+# db.properties est ignoré par Git : ne jamais y commiter un mot de passe.
+db.url=jdbc:mysql://localhost:3306/repairtrack?useSSL=false&serverTimezone=Africa/Casablanca&allowPublicKeyRetrieval=true
+db.user=root
+db.password=

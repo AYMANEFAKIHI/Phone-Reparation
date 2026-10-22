@@ -1,0 +1,17 @@
+DRIVER MYSQL (JDBC) — À FAIRE UNE FOIS PAR POSTE
+=================================================
+
+Ce dossier doit contenir le fichier :   mysql-connector-j.jar
+
+Tant qu'il est absent, Eclipse affiche l'erreur
+« Project 'RepairTrack' is missing required library: 'lib/mysql-connector-j.jar' ».
+
+1. Aller sur https://dev.mysql.com/downloads/connector/j/
+2. Choisir « Platform Independent », télécharger le ZIP (pas besoin de compte :
+   cliquer sur « No thanks, just start my download »).
+3. Ouvrir le ZIP, prendre le fichier mysql-connector-j-8.x.x.jar (ou 9.x.x).
+4. Le copier dans ce dossier lib/ et le RENOMMER en :   mysql-connector-j.jar
+5. Dans Eclipse : clic droit sur le projet > Refresh (F5). L'erreur disparaît.
+
+Le .jar est versionné dans Git (fichier de ~2,5 Mo) : une fois commité par un membre,
+les autres n'ont plus rien à télécharger.

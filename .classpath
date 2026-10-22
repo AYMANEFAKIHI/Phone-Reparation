@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<!-- Code de l'application -->
+	<classpathentry kind="src" path="src/main/java"/>
+	<!-- Tests JUnit 5 (dossier de test : non inclus dans l'application) -->
+	<classpathentry kind="src" output="bin-test" path="src/test/java">
+		<attributes>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<!-- Java 17 -->
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<!-- JUnit 5 : fourni par Eclipse, rien à télécharger -->
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5">
+		<attributes>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<!-- Driver MySQL : à déposer dans lib/ (voir lib/LISEZ-MOI.txt) -->
+	<classpathentry kind="lib" path="lib/mysql-connector-j.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

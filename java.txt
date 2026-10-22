@@ -1,0 +1,57 @@
+une application de gestion et suivi des reparations des appareiles informatiques ((( phone  )))
+
+( plusieurx reparateurs dans meme boutique sachant que la commision ) 
+
+prop
+reparateur
+peut possible ( prop  est le meme reparateur )
+client (sans login sans session ) 
+
+sans gestion de stock
+
+creation de reparation avec l'object de reparation (appareille ) ensuite declaration de cause avec le cout de l'achat de pieces  ensuite le cout de main de reparateur cela implique le prop prend juste la commision de cout 
+
+statut de payment ( avence (how much and when )   ou complet ou rien ) 
+
+le client donne nom complet et num telephone
+
+aprs la genration de cette reparation il ce genere automatiquement un code et un statut de reparation cela implique le client recois juste ce code pour le suivi 
+
+le cas pour le client qui as plusieurs apparaeil le reparateur anonce une seul reparation qui contient plusieurx appareil avec chaquen son statut etc mais en fin un seul code generer pour le client qui track les 2 appareils en meme temps
+
+en tant que prop alors la main pour creation de boutique ( details de boutique + N°Pattente ) cela implique creer des compte pour ces reparateurs chacun on design la commusion precis 
+
+affichage de resultat par jour par semaine par mois par total 
+
+nombre de caisses = nombres des reparateurs
+
+gestion de credit entre prop et prop avec declaration de prix et num de magasin de l'autre prop
+
+swinng
+mysql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

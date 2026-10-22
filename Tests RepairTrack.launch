@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/RepairTrack/src/test/java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="2"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=RepairTrack/src\/test\/java"/>
+    <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit5"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="RepairTrack"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dfile.encoding=UTF-8"/>
+    <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:RepairTrack}"/>
+</launchConfiguration>
