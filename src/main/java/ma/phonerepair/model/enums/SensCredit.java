@@ -1,6 +1,11 @@
 package ma.phonerepair.model.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /** Sens d'un crédit inter-boutiques (RG-41). */
+@Getter
+@RequiredArgsConstructor
 public enum SensCredit {
     /** Nous avons prêté : l'autre boutique nous doit de l'argent. */
     ACCORDE("Accordé (on nous doit)"),
@@ -8,14 +13,6 @@ public enum SensCredit {
     RECU("Reçu (nous devons)");
 
     private final String libelle;
-
-    SensCredit(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
 
     @Override
     public String toString() {

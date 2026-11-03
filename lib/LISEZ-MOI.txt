@@ -1,17 +1,40 @@
-DRIVER MYSQL (JDBC) — À FAIRE UNE FOIS PAR POSTE
-=================================================
+BIBLIOTHÈQUES DU PROJET — À FAIRE UNE FOIS PAR POSTE
+=====================================================
 
-Ce dossier doit contenir le fichier :   mysql-connector-j.jar
+Ce dossier doit contenir EXACTEMENT ces deux fichiers :
 
-Tant qu'il est absent, Eclipse affiche l'erreur
-« Project 'RepairTrack' is missing required library: 'lib/mysql-connector-j.jar' ».
+    mysql-connector-java-8.0.28.jar     driver JDBC MySQL (version imposée : 8.0.28)
+    lombok.jar                          Lombok (génère getters / setters / constructeurs)
 
-1. Aller sur https://dev.mysql.com/downloads/connector/j/
-2. Choisir « Platform Independent », télécharger le ZIP (pas besoin de compte :
-   cliquer sur « No thanks, just start my download »).
-3. Ouvrir le ZIP, prendre le fichier mysql-connector-j-8.x.x.jar (ou 9.x.x).
-4. Le copier dans ce dossier lib/ et le RENOMMER en :   mysql-connector-j.jar
-5. Dans Eclipse : clic droit sur le projet > Refresh (F5). L'erreur disparaît.
+Tant qu'un fichier manque, Eclipse affiche « Project 'RepairTrack' is missing required library ».
+Attention à Windows qui cache les extensions : vérifier qu'on n'obtient pas « lombok.jar.jar »
+(Explorateur > Affichage > Afficher > Extensions de noms de fichiers).
 
-Le .jar est versionné dans Git (fichier de ~2,5 Mo) : une fois commité par un membre,
-les autres n'ont plus rien à télécharger.
+
+1) DRIVER MYSQL 8.0.28
+----------------------
+- Aller sur https://downloads.mysql.com/archives/c-j/
+- Product Version : 8.0.28   —   Operating System : Platform Independent
+- Télécharger le ZIP, l'ouvrir, prendre  mysql-connector-java-8.0.28.jar
+- Le copier tel quel dans ce dossier lib/ (ne pas le renommer)
+- Supprimer l'ancien  mysql-connector-j.jar  s'il est encore là
+
+
+2) LOMBOK (2 étapes : le jar ET l'installation dans Eclipse)
+------------------------------------------------------------
+a) Télécharger lombok.jar sur https://projectlombok.org/download (dernière version)
+   et le copier dans ce dossier lib/ sous le nom  lombok.jar
+
+b) Installer Lombok DANS ECLIPSE (sinon Eclipse affiche des centaines d'erreurs
+   « The method getNom() is undefined ») :
+   - Fermer Eclipse
+   - Double-cliquer sur lib/lombok.jar
+     (ou dans un terminal :  java -jar lombok.jar )
+   - L'installeur trouve Eclipse (sinon : « Specify location… » > choisir eclipse.exe)
+   - Cliquer « Install / Update », puis « Quit Installer »
+   - Relancer Eclipse > clic droit sur le projet > Refresh (F5) > Project > Clean…
+
+   Vérification : Help > About Eclipse IDE doit afficher « Lombok v1.18.x is installed ».
+
+Chaque membre de l'équipe fait l'étape 2b sur SON Eclipse (une seule fois).
+Les .jar sont commités dans Git : les autres n'ont pas besoin de les retélécharger.

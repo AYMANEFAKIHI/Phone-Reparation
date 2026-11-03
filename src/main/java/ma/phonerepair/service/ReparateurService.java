@@ -7,6 +7,9 @@ import ma.phonerepair.dao.DataAccessException;
 import ma.phonerepair.dao.ReparateurDAO;
 import ma.phonerepair.dao.TransactionManager;
 import ma.phonerepair.dao.UtilisateurDAO;
+import ma.phonerepair.dao.impl.CaisseDAOImpl;
+import ma.phonerepair.dao.impl.ReparateurDAOImpl;
+import ma.phonerepair.dao.impl.UtilisateurDAOImpl;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.model.enums.Role;
 import ma.phonerepair.service.exception.BusinessException;
@@ -22,9 +25,9 @@ public class ReparateurService {
 
     private static final BigDecimal TAUX_MAX = new BigDecimal("100");
 
-    private final UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
-    private final ReparateurDAO reparateurDAO = new ReparateurDAO();
-    private final CaisseDAO caisseDAO = new CaisseDAO();
+    private final UtilisateurDAO utilisateurDAO = new UtilisateurDAOImpl();
+    private final ReparateurDAO reparateurDAO = new ReparateurDAOImpl();
+    private final CaisseDAO caisseDAO = new CaisseDAOImpl();
 
     /** Tous les comptes (propriétaire inclus), avec leur profil réparateur éventuel. */
     public List<Utilisateur> listerComptes(Utilisateur acteur) {

@@ -1,5 +1,6 @@
 package ma.phonerepair.presentation;
 
+import java.util.Arrays;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -159,9 +160,7 @@ public class DashboardFrame extends JFrame {
 
     private void afficher(String nom) {
         cartes.show(zoneCentrale, nom);
-        for (UiTheme.BoutonPlat b : boutonsMenu) {
-            b.setActif(nom.equals(b.getName()));
-        }
+        boutonsMenu.forEach(b -> b.setActif(nom.equals(b.getName())));
     }
 
     private void rafraichirNomBoutique() {
@@ -197,7 +196,7 @@ public class DashboardFrame extends JFrame {
         if (choix != JOptionPane.OK_OPTION) {
             return;
         }
-        if (!java.util.Arrays.equals(nouveau.getPassword(), confirmation.getPassword())) {
+        if (!Arrays.equals(nouveau.getPassword(), confirmation.getPassword())) {
             UiUtil.avertir(this, "La confirmation ne correspond pas au nouveau mot de passe.");
             return;
         }

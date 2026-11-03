@@ -1,6 +1,9 @@
 package ma.phonerepair.service;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,10 @@ import ma.phonerepair.dao.HistoriqueStatutDAO;
 import ma.phonerepair.dao.InterventionDAO;
 import ma.phonerepair.dao.ReparationDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.AppareilDAOImpl;
+import ma.phonerepair.dao.impl.HistoriqueStatutDAOImpl;
+import ma.phonerepair.dao.impl.InterventionDAOImpl;
+import ma.phonerepair.dao.impl.ReparationDAOImpl;
 import ma.phonerepair.model.Appareil;
 import ma.phonerepair.model.Client;
 import ma.phonerepair.model.HistoriqueStatut;
@@ -35,10 +42,10 @@ public class ReparationService {
     static final int MAX_APPAREILS = 10;
     private static final int TENTATIVES_CODE = 3;
 
-    private final ReparationDAO reparationDAO = new ReparationDAO();
-    private final AppareilDAO appareilDAO = new AppareilDAO();
-    private final InterventionDAO interventionDAO = new InterventionDAO();
-    private final HistoriqueStatutDAO historiqueDAO = new HistoriqueStatutDAO();
+    private final ReparationDAO reparationDAO = new ReparationDAOImpl();
+    private final AppareilDAO appareilDAO = new AppareilDAOImpl();
+    private final InterventionDAO interventionDAO = new InterventionDAOImpl();
+    private final HistoriqueStatutDAO historiqueDAO = new HistoriqueStatutDAOImpl();
 
     /**
      * Statut global d'une réparation, calculé à partir des statuts de ses appareils (RG-19).
@@ -145,9 +152,7 @@ public class ReparationService {
             List<Appareil> appareils = appareilDAO.listerParReparation(conn, reparationId);
             Map<Integer, List<Intervention>> parAppareil = interventionDAO.listerParReparation(conn, reparationId)
                     .stream().collect(Collectors.groupingBy(Intervention::getAppareilId));
-            for (Appareil a : appareils) {
-                a.setInterventions(parAppareil.getOrDefault(a.getId(), new java.util.ArrayList<>()));
-            }
+            appareils.forEach(a -> a.setInterventions(parAppareil.getOrDefault(a.getId(), new ArrayList<>())));
             r.setAppareils(appareils);
             return r;
         });
@@ -165,14 +170,12 @@ public class ReparationService {
         Integer filtreReparateur = acteur.estProprietaire() ? null : idProfil(acteur);
         List<ResumeReparation> liste = TransactionManager.lecture(
                 conn -> reparationDAO.lister(conn, filtreReparateur, texte));
-        for (ResumeReparation r : liste) {
+        liste.forEach(r -> {
             r.setStatutGlobal(calculerStatutGlobal(r.getStatutsAppareils()));
             r.setSituation(PaiementService.calculerSituation(r.getTotal(), r.getPaye()));
-        }
-        if (statut != null) {
-            liste.removeIf(r -> r.getStatutGlobal() != statut);
-        }
-        return liste;
+        });
+        return liste.stream().filter(r -> statut == null || r.getStatutGlobal() == statut)
+                .collect(Collectors.toList());
     }
 
     /** Propriétaire : tout. Réparateur : uniquement les réparations dont il est responsable. */
@@ -185,8 +188,8 @@ public class ReparationService {
         }
     }
 
-    private Appareil insererAppareil(java.sql.Connection conn, int reparationId, Appareil saisie,
-                                     Utilisateur acteur) throws java.sql.SQLException {
+    private Appareil insererAppareil(Connection conn, int reparationId, Appareil saisie,
+                                     Utilisateur acteur) throws SQLException {
         Appareil a = nettoyer(saisie);
         a.setReparationId(reparationId);
         a.setStatut(StatutReparation.RECEIVED);

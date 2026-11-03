@@ -14,7 +14,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import ma.phonerepair.model.DossierPaiement;
-import ma.phonerepair.model.Paiement;
 import ma.phonerepair.model.SituationFinanciere;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.model.enums.TypePaiement;
@@ -74,7 +73,7 @@ public class PaiementPanel extends JPanel {
 
         JTable table = new JTable(modele);
         UiTheme.styliserTable(table);
-        table.getColumnModel().getColumn(1).setCellRenderer(UiTheme.rendreMontant());
+        UiTheme.colonnesMontant(table, 1);
         JPanel centre = new JPanel(new BorderLayout(0, 4));
         centre.setOpaque(false);
         centre.add(new JLabel("Paiements déjà reçus"), BorderLayout.NORTH);
@@ -138,10 +137,9 @@ public class PaiementPanel extends JPanel {
                 + "   ·   Reste " + MoneyUtil.formater(s.getReste()) + "   (" + s.getStatut().getLibelle() + ")");
         labelSituation.setForeground(s.getReste().signum() > 0 ? UiTheme.ACCENT : UiTheme.SUCCES);
         modele.setRowCount(0);
-        for (Paiement p : d.getPaiements()) {
-            modele.addRow(new Object[] {DateUtil.formater(p.getDatePaiement()), MoneyUtil.formater(p.getMontant()),
-                    p.getTypePaiement().getLibelle(), p.getNomUtilisateur(), p.getNote() == null ? "" : p.getNote()});
-        }
+        d.getPaiements().forEach(p -> modele.addRow(new Object[] {DateUtil.formater(p.getDatePaiement()),
+                MoneyUtil.formater(p.getMontant()), p.getTypePaiement().getLibelle(), p.getNomUtilisateur(),
+                p.getNote() == null ? "" : p.getNote()}));
         activerFormulaire(s.getReste().signum() > 0);
         champMontant.setText("");
         champNote.setText("");

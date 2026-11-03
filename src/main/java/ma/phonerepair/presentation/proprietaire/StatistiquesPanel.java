@@ -3,8 +3,6 @@ package ma.phonerepair.presentation.proprietaire;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +21,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-import ma.phonerepair.model.PerformanceReparateur;
 import ma.phonerepair.model.Statistiques;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.model.enums.Periode;
@@ -115,20 +112,13 @@ public class StatistiquesPanel extends JPanel {
         bas.add(UiTheme.sousTitre("Performance des réparateurs (appareils livrés sur la période)"), BorderLayout.NORTH);
         JTable table = new JTable(modelePerf);
         UiTheme.styliserTable(table);
-        for (int c = 1; c < 5; c++) {
-            table.getColumnModel().getColumn(c).setCellRenderer(UiTheme.rendreMontant());
-        }
+        UiTheme.colonnesMontant(table, 1, 2, 3, 4);
         bas.add(new JScrollPane(table), BorderLayout.CENTER);
         bas.add(UiTheme.aide("« Marge brute » ne déduit ni loyer, ni électricité, ni salaires : ce n'est pas un bénéfice."),
                 BorderLayout.SOUTH);
         add(bas, BorderLayout.CENTER);
 
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                calculer();
-            }
-        });
+        UiUtil.quandAffiche(this, this::calculer);
     }
 
     private void calculer() {
@@ -153,11 +143,9 @@ public class StatistiquesPanel extends JPanel {
             cartes.get(i).setValeur(v[i]);
         }
         modelePerf.setRowCount(0);
-        for (PerformanceReparateur pr : s.getPerformances()) {
-            modelePerf.addRow(new Object[] {pr.getNomReparateur(), pr.getAppareilsLivres(),
-                MoneyUtil.formater(pr.getMontantFacture()), MoneyUtil.formater(pr.getMainOeuvre()),
-                MoneyUtil.formater(pr.getCommission())});
-        }
+        s.getPerformances().forEach(pr -> modelePerf.addRow(new Object[] {pr.getNomReparateur(),
+                pr.getAppareilsLivres(), MoneyUtil.formater(pr.getMontantFacture()),
+                MoneyUtil.formater(pr.getMainOeuvre()), MoneyUtil.formater(pr.getCommission())}));
     }
 
     private static String[] valeurs(Statistiques s) {
@@ -192,10 +180,8 @@ public class StatistiquesPanel extends JPanel {
         }
         lignes.add("");
         lignes.add("Réparateur;Appareils livrés;Facturé;Main d'œuvre;Commission");
-        for (PerformanceReparateur p : derniere.getPerformances()) {
-            lignes.add(p.getNomReparateur() + ";" + p.getAppareilsLivres() + ";" + p.getMontantFacture() + ";"
-                    + p.getMainOeuvre() + ";" + p.getCommission());
-        }
+        derniere.getPerformances().forEach(p -> lignes.add(p.getNomReparateur() + ";" + p.getAppareilsLivres()
+                + ";" + p.getMontantFacture() + ";" + p.getMainOeuvre() + ";" + p.getCommission()));
         try {
             // BOM UTF-8 pour qu'Excel affiche correctement les accents
             Files.write(choix.getSelectedFile().toPath(), ("﻿" + String.join("\r\n", lignes)).getBytes(StandardCharsets.UTF_8));

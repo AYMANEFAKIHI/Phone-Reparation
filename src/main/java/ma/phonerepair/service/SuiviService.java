@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 import ma.phonerepair.dao.AppareilDAO;
 import ma.phonerepair.dao.ReparationDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.AppareilDAOImpl;
+import ma.phonerepair.dao.impl.ReparationDAOImpl;
 import ma.phonerepair.model.Appareil;
 import ma.phonerepair.model.Reparation;
 import ma.phonerepair.model.SuiviClient;
@@ -21,8 +23,8 @@ public class SuiviService {
     private static final Logger LOG = Logger.getLogger(SuiviService.class.getName());
     static final String MSG_INTROUVABLE = "Aucune réparation trouvée pour ce code et ce numéro.";
 
-    private final ReparationDAO reparationDAO = new ReparationDAO();
-    private final AppareilDAO appareilDAO = new AppareilDAO();
+    private final ReparationDAO reparationDAO = new ReparationDAOImpl();
+    private final AppareilDAO appareilDAO = new AppareilDAOImpl();
     private final PaiementService paiementService = new PaiementService();
 
     public SuiviClient suivre(String code, String quatreDerniersChiffres) {
@@ -47,10 +49,8 @@ public class SuiviService {
             s.setCodeSuivi(r.getCodeSuivi());
             s.setNomClient(r.getClient().getNomComplet());
             s.setDateDepot(r.getDateCreation());
-            for (Appareil a : appareils) {
-                s.getAppareils().add(new SuiviClient.LigneSuivi(a.getDesignation(), a.getProblemeSignale(),
-                        a.getStatut(), a.getDateMajStatut()));
-            }
+            appareils.forEach(a -> s.getAppareils().add(new SuiviClient.LigneSuivi(a.getDesignation(),
+                    a.getProblemeSignale(), a.getStatut(), a.getDateMajStatut())));
             s.setStatutGlobal(ReparationService.calculerStatutGlobal(
                     appareils.stream().map(Appareil::getStatut).toList()));
             s.setSituation(paiementService.situation(conn, r.getId()));

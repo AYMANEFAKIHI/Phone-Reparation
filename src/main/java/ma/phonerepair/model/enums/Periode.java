@@ -1,6 +1,11 @@
 package ma.phonerepair.model.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /** Période des statistiques (EF-21). La semaine va du lundi au dimanche. */
+@Getter
+@RequiredArgsConstructor
 public enum Periode {
     JOUR("Jour"),
     SEMAINE("Semaine"),
@@ -8,14 +13,6 @@ public enum Periode {
     TOTAL("Total (depuis le début)");
 
     private final String libelle;
-
-    Periode(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
 
     @Override
     public String toString() {

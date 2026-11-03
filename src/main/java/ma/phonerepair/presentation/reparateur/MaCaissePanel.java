@@ -1,10 +1,9 @@
 package ma.phonerepair.presentation.reparateur;
 
+import java.util.stream.Stream;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -50,15 +49,13 @@ public class MaCaissePanel extends JPanel {
         haut.add(UiTheme.titre("Ma caisse"), BorderLayout.NORTH);
         JPanel cartes = new JPanel(new GridLayout(1, 0, 10, 0));
         cartes.setOpaque(false);
-        for (CarteChiffre c : new CarteChiffre[] {carteSolde, carteEncaisse, carteAcquise, carteDue, cartePrevision}) {
-            cartes.add(c);
-        }
+        Stream.of(carteSolde, carteEncaisse, carteAcquise, carteDue, cartePrevision).forEach(cartes::add);
         haut.add(cartes, BorderLayout.CENTER);
         add(haut, BorderLayout.NORTH);
 
         JTable table = new JTable(modele);
         UiTheme.styliserTable(table);
-        table.getColumnModel().getColumn(3).setCellRenderer(UiTheme.rendreMontant());
+        UiTheme.colonnesMontant(table, 3);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel bas = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -69,12 +66,7 @@ public class MaCaissePanel extends JPanel {
         bas.add(UiTheme.aide("Les versements au propriétaire et le paiement de la commission sont saisis par le propriétaire."));
         add(bas, BorderLayout.SOUTH);
 
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                charger();
-            }
-        });
+        UiUtil.quandAffiche(this, this::charger);
     }
 
     private void charger() {

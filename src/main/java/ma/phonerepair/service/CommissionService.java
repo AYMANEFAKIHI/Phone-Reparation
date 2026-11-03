@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import ma.phonerepair.dao.InterventionDAO;
+import ma.phonerepair.dao.impl.InterventionDAOImpl;
 import ma.phonerepair.model.Intervention;
 import ma.phonerepair.util.MoneyUtil;
 
@@ -14,7 +15,7 @@ import ma.phonerepair.util.MoneyUtil;
  */
 public class CommissionService {
 
-    private final InterventionDAO interventionDAO = new InterventionDAO();
+    private final InterventionDAO interventionDAO = new InterventionDAOImpl();
 
     /** Commission du réparateur = main d'œuvre × taux / 100. Ex. 100 DH à 60 % → 60,00 DH. */
     public static BigDecimal calculerCommission(BigDecimal mainOeuvre, BigDecimal taux) {
@@ -33,9 +34,7 @@ public class CommissionService {
 
     /** Somme des commissions d'une liste d'interventions, chacune avec son propre taux figé. */
     public static BigDecimal totalCommissions(List<Intervention> interventions) {
-        return interventions.stream()
-                .map(i -> calculerCommission(i.getMainOeuvre(), i.getTauxCommissionApplique()))
-                .reduce(MoneyUtil.ZERO, BigDecimal::add);
+        return MoneyUtil.somme(interventions, i -> calculerCommission(i.getMainOeuvre(), i.getTauxCommissionApplique()));
     }
 
     /** Commission acquise : appareils livrés (RG-35, Q2). */

@@ -3,6 +3,7 @@ package ma.phonerepair.service;
 import java.util.List;
 import ma.phonerepair.dao.ClientDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.ClientDAOImpl;
 import ma.phonerepair.model.Client;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.service.exception.ValidationException;
@@ -11,7 +12,7 @@ import ma.phonerepair.util.ValidationUtil;
 /** Gestion des clients (EF-07, RG-08, RG-09). Les clients n'ont pas de compte. */
 public class ClientService {
 
-    private final ClientDAO clientDAO = new ClientDAO();
+    private final ClientDAO clientDAO = new ClientDAOImpl();
 
     /**
      * Recherche par début de téléphone (« 0612 ») ou par morceau de nom (« amrani »).

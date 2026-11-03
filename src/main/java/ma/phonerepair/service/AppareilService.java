@@ -11,6 +11,12 @@ import ma.phonerepair.dao.PaiementDAO;
 import ma.phonerepair.dao.ReparateurDAO;
 import ma.phonerepair.dao.ReparationDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.AppareilDAOImpl;
+import ma.phonerepair.dao.impl.HistoriqueStatutDAOImpl;
+import ma.phonerepair.dao.impl.InterventionDAOImpl;
+import ma.phonerepair.dao.impl.PaiementDAOImpl;
+import ma.phonerepair.dao.impl.ReparateurDAOImpl;
+import ma.phonerepair.dao.impl.ReparationDAOImpl;
 import ma.phonerepair.model.Appareil;
 import ma.phonerepair.model.HistoriqueStatut;
 import ma.phonerepair.model.Intervention;
@@ -28,12 +34,12 @@ import ma.phonerepair.util.ValidationUtil;
  */
 public class AppareilService {
 
-    private final AppareilDAO appareilDAO = new AppareilDAO();
-    private final ReparationDAO reparationDAO = new ReparationDAO();
-    private final InterventionDAO interventionDAO = new InterventionDAO();
-    private final HistoriqueStatutDAO historiqueDAO = new HistoriqueStatutDAO();
-    private final ReparateurDAO reparateurDAO = new ReparateurDAO();
-    private final PaiementDAO paiementDAO = new PaiementDAO();
+    private final AppareilDAO appareilDAO = new AppareilDAOImpl();
+    private final ReparationDAO reparationDAO = new ReparationDAOImpl();
+    private final InterventionDAO interventionDAO = new InterventionDAOImpl();
+    private final HistoriqueStatutDAO historiqueDAO = new HistoriqueStatutDAOImpl();
+    private final ReparateurDAO reparateurDAO = new ReparateurDAOImpl();
+    private final PaiementDAO paiementDAO = new PaiementDAOImpl();
 
     /**
      * Enregistre l'intervention d'un appareil.

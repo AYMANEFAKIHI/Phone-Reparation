@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class MoneyUtilTest {
@@ -32,6 +33,13 @@ class MoneyUtilTest {
         assertThrows(NumberFormatException.class, () -> MoneyUtil.parser("abc"));
         assertThrows(NumberFormatException.class, () -> MoneyUtil.parser(""));
         assertThrows(NumberFormatException.class, () -> MoneyUtil.parser("10.123"));
+    }
+
+    @Test
+    void sommeAvecLambda() {
+        List<BigDecimal> montants = List.of(new BigDecimal("10.005"), new BigDecimal("20"));
+        assertEquals(new BigDecimal("30.01"), MoneyUtil.somme(montants, m -> m));
+        assertEquals(MoneyUtil.ZERO, MoneyUtil.somme(List.<BigDecimal>of(), m -> m));
     }
 
     @Test

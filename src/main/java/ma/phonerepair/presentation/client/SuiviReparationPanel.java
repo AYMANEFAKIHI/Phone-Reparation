@@ -92,9 +92,7 @@ public class SuiviReparationPanel extends JPanel {
         labelMontants.setText("À payer " + MoneyUtil.formater(s.getSituation().getTotal())
                 + "   ·   Déjà payé " + MoneyUtil.formater(s.getSituation().getPaye())
                 + "   ·   Reste " + MoneyUtil.formater(s.getSituation().getReste()));
-        for (SuiviClient.LigneSuivi l : s.getAppareils()) {
-            modele.addRow(new Object[] {l.getDesignation(), l.getProblemeSignale(), l.getStatut(),
-                    DateUtil.formater(l.getDateMajStatut())});
-        }
+        s.getAppareils().forEach(l -> modele.addRow(new Object[] {l.getDesignation(), l.getProblemeSignale(),
+                l.getStatut(), DateUtil.formater(l.getDateMajStatut())}));
     }
 }

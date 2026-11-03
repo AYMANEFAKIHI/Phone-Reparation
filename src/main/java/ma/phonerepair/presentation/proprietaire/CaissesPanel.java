@@ -1,11 +1,10 @@
 package ma.phonerepair.presentation.proprietaire;
 
+import java.util.stream.IntStream;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,9 +56,7 @@ public class CaissesPanel extends JPanel {
         UiTheme.styliserTable(table);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(0).setPreferredWidth(170);
-        for (int c = 1; c < modele.getColumnCount(); c++) {
-            table.getColumnModel().getColumn(c).setCellRenderer(UiTheme.rendreMontant());
-        }
+        UiTheme.colonnesMontant(table, IntStream.range(1, modele.getColumnCount()).toArray());
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel bas = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -75,12 +72,7 @@ public class CaissesPanel extends JPanel {
         bas.add(commission);
         add(bas, BorderLayout.SOUTH);
 
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                charger();
-            }
-        });
+        UiUtil.quandAffiche(this, this::charger);
     }
 
     private void charger() {

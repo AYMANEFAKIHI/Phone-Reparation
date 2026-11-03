@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import ma.phonerepair.dao.CreditDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.CreditDAOImpl;
 import ma.phonerepair.model.Credit;
 import ma.phonerepair.model.RemboursementCredit;
 import ma.phonerepair.model.Utilisateur;
@@ -21,7 +22,7 @@ import ma.phonerepair.util.ValidationUtil;
  */
 public class CreditService {
 
-    private final CreditDAO creditDAO = new CreditDAO();
+    private final CreditDAO creditDAO = new CreditDAOImpl();
 
     /** Total déjà remboursé. */
     public static BigDecimal totalRembourse(Credit c) {

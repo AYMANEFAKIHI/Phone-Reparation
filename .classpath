@@ -16,7 +16,9 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<!-- Driver MySQL : à déposer dans lib/ (voir lib/LISEZ-MOI.txt) -->
-	<classpathentry kind="lib" path="lib/mysql-connector-j.jar"/>
+	<!-- Driver MySQL Connector/J 8.0.28 : à déposer dans lib/ (voir lib/LISEZ-MOI.txt) -->
+	<classpathentry kind="lib" path="lib/mysql-connector-java-8.0.28.jar"/>
+	<!-- Lombok (@Getter, @Setter...) : le jar dans lib/ + l'installeur lancé une fois dans Eclipse -->
+	<classpathentry kind="lib" path="lib/lombok.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

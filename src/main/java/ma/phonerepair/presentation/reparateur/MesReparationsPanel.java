@@ -1,11 +1,8 @@
 package ma.phonerepair.presentation.reparateur;
 
+import java.util.Arrays;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -61,21 +58,10 @@ public class MesReparationsPanel extends JPanel {
         UiTheme.styliserTable(table);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(ResumeTableModel.COL_STATUT).setCellRenderer(UiTheme.rendreStatut());
-        for (int c : new int[] {ResumeTableModel.COL_TOTAL, ResumeTableModel.COL_TOTAL + 1, ResumeTableModel.COL_TOTAL + 2}) {
-            table.getColumnModel().getColumn(c).setCellRenderer(UiTheme.rendreMontant());
-        }
-        int[] largeurs = {150, 130, 170, 110, 80, 110, 100, 100, 100, 140};
-        for (int c = 0; c < table.getColumnCount(); c++) {
-            table.getColumnModel().getColumn(c).setPreferredWidth(largeurs[c]);
-        }
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    ouvrir();
-                }
-            }
-        });
+        int total = ResumeTableModel.COL_TOTAL;
+        UiTheme.colonnesMontant(table, total, total + 1, total + 2);
+        UiTheme.largeursColonnes(table, 150, 130, 170, 110, 80, 110, 100, 100, 100, 140);
+        UiUtil.surDoubleClic(table, this::ouvrir);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel bas = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -87,21 +73,14 @@ public class MesReparationsPanel extends JPanel {
         add(bas, BorderLayout.SOUTH);
 
         // Rechargement à chaque affichage (ex. après une nouvelle réparation)
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                charger();
-            }
-        });
+        UiUtil.quandAffiche(this, this::charger);
     }
 
     private JPanel construireFiltres() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         p.setOpaque(false);
         filtreStatut.addItem(TOUS);
-        for (StatutGlobal s : StatutGlobal.values()) {
-            filtreStatut.addItem(s);
-        }
+        Arrays.stream(StatutGlobal.values()).forEach(filtreStatut::addItem);
         filtreStatut.addActionListener(e -> charger());
         champRecherche.addActionListener(e -> charger());
         JButton chercher = UiTheme.boutonSecondaire("Rechercher");

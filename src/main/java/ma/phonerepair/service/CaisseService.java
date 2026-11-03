@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import ma.phonerepair.dao.CaisseDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.CaisseDAOImpl;
 import ma.phonerepair.model.MouvementCaisse;
 import ma.phonerepair.model.ResumeCaisse;
 import ma.phonerepair.model.Utilisateur;
@@ -23,18 +24,15 @@ import ma.phonerepair.util.ValidationUtil;
  */
 public class CaisseService {
 
-    private final CaisseDAO caisseDAO = new CaisseDAO();
+    private final CaisseDAO caisseDAO = new CaisseDAOImpl();
     private final CommissionService commissionService = new CommissionService();
 
     /**
      * Solde = Σ montants × sens du type (entrée +1, sortie −1). Calcul pur, testable sans base.
      */
     public static BigDecimal calculerSolde(Map<TypeMouvement, BigDecimal> totauxParType) {
-        BigDecimal solde = MoneyUtil.ZERO;
-        for (Map.Entry<TypeMouvement, BigDecimal> e : totauxParType.entrySet()) {
-            solde = solde.add(e.getValue().multiply(BigDecimal.valueOf(e.getKey().getSens())));
-        }
-        return MoneyUtil.arrondir(solde);
+        return MoneyUtil.somme(totauxParType.entrySet(),
+                e -> e.getValue().multiply(BigDecimal.valueOf(e.getKey().getSens())));
     }
 
     /** Ma caisse (réparateur ou propriétaire ayant un profil réparateur). */
@@ -46,12 +44,7 @@ public class CaisseService {
     /** Caisse d'un réparateur : le propriétaire voit tout, un réparateur seulement la sienne. */
     public ResumeCaisse resume(Utilisateur acteur, int reparateurId) {
         verifierLecture(acteur, reparateurId);
-        return TransactionManager.lecture(conn -> {
-            ResumeCaisse c = caisseDAO.trouverParReparateur(conn, reparateurId)
-                    .orElseThrow(() -> new BusinessException("Caisse introuvable."));
-            completer(conn, c);
-            return c;
-        });
+        return TransactionManager.lecture(conn -> completer(conn, caisse(conn, reparateurId)));
     }
 
     /** Toutes les caisses (EF-17) — propriétaire uniquement. */
@@ -68,11 +61,8 @@ public class CaisseService {
 
     public List<MouvementCaisse> mouvements(Utilisateur acteur, int reparateurId) {
         verifierLecture(acteur, reparateurId);
-        return TransactionManager.lecture(conn -> {
-            ResumeCaisse c = caisseDAO.trouverParReparateur(conn, reparateurId)
-                    .orElseThrow(() -> new BusinessException("Caisse introuvable."));
-            return caisseDAO.listerMouvements(conn, c.getCaisseId());
-        });
+        return TransactionManager.lecture(
+                conn -> caisseDAO.listerMouvements(conn, caisse(conn, reparateurId).getCaisseId()));
     }
 
     /**
@@ -107,8 +97,7 @@ public class CaisseService {
         }
         BigDecimal m = MoneyUtil.arrondir(montant);
         return TransactionManager.enTransaction(conn -> {
-            ResumeCaisse c = caisseDAO.trouverParReparateur(conn, reparateurId)
-                    .orElseThrow(() -> new BusinessException("Caisse introuvable."));
+            ResumeCaisse c = caisse(conn, reparateurId);
             caisseDAO.verrouiller(conn, c.getCaisseId());
             completer(conn, c);
             if (m.compareTo(c.getSolde()) > 0) {
@@ -126,12 +115,17 @@ public class CaisseService {
             mvt.setUtilisateurId(acteur.getId());
             mvt.setLibelle(ValidationUtil.estVide(libelle) ? type.getLibelle() : libelle.trim());
             caisseDAO.insererMouvement(conn, mvt);
-            completer(conn, c);
-            return c;
+            return completer(conn, c);
         });
     }
 
-    private void completer(Connection conn, ResumeCaisse c) throws SQLException {
+    private ResumeCaisse caisse(Connection conn, int reparateurId) throws SQLException {
+        return caisseDAO.trouverParReparateur(conn, reparateurId)
+                .orElseThrow(() -> new BusinessException("Caisse introuvable."));
+    }
+
+    /** Ajoute les montants calculés (solde, totaux, commissions) à la caisse. */
+    private ResumeCaisse completer(Connection conn, ResumeCaisse c) throws SQLException {
         Map<TypeMouvement, BigDecimal> totaux = caisseDAO.totauxParType(conn, c.getCaisseId());
         c.setSolde(calculerSolde(totaux));
         c.setTotalEncaisse(totaux.get(TypeMouvement.ENCAISSEMENT));
@@ -140,6 +134,7 @@ public class CaisseService {
         c.setCommissionPayee(totaux.get(TypeMouvement.PAIEMENT_COMMISSION));
         c.setCommissionAcquise(commissionService.commissionAcquise(conn, c.getReparateurId()));
         c.setCommissionPrevisionnelle(commissionService.commissionPrevisionnelle(conn, c.getReparateurId()));
+        return c;
     }
 
     private static void verifierLecture(Utilisateur acteur, int reparateurId) {

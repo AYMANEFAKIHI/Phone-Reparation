@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -24,7 +22,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import ma.phonerepair.model.Credit;
-import ma.phonerepair.model.RemboursementCredit;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.model.enums.SensCredit;
 import ma.phonerepair.presentation.UiTheme;
@@ -59,9 +56,7 @@ public class CreditsPanel extends JPanel {
 
         UiTheme.styliserTable(table);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        for (int c : new int[] {4, 5, 6}) {
-            table.getColumnModel().getColumn(c).setCellRenderer(UiTheme.rendreMontant());
-        }
+        UiTheme.colonnesMontant(table, 4, 5, 6);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JPanel bas = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -77,12 +72,7 @@ public class CreditsPanel extends JPanel {
         bas.add(historique);
         add(bas, BorderLayout.SOUTH);
 
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                charger();
-            }
-        });
+        UiUtil.quandAffiche(this, this::charger);
     }
 
     private void charger() {
@@ -188,10 +178,8 @@ public class CreditsPanel extends JPanel {
             return;
         }
         DefaultTableModel m = new DefaultTableModel(new String[] {"Date", "Montant", "Note"}, 0);
-        for (RemboursementCredit r : c.getRemboursements()) {
-            m.addRow(new Object[] {DateUtil.formater(r.getDateRemboursement()), MoneyUtil.formater(r.getMontant()),
-                r.getNote() == null ? "" : r.getNote()});
-        }
+        c.getRemboursements().forEach(r -> m.addRow(new Object[] {DateUtil.formater(r.getDateRemboursement()),
+                MoneyUtil.formater(r.getMontant()), r.getNote() == null ? "" : r.getNote()}));
         JTable t = new JTable(m);
         UiTheme.styliserTable(t);
         JScrollPane sp = new JScrollPane(t);

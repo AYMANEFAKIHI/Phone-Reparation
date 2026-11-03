@@ -1,6 +1,11 @@
 package ma.phonerepair.model.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /** Mode de paiement d'un client (RG-25). */
+@Getter
+@RequiredArgsConstructor
 public enum TypePaiement {
     ESPECES("Espèces"),
     CARTE("Carte"),
@@ -8,14 +13,6 @@ public enum TypePaiement {
     CHEQUE("Chèque");
 
     private final String libelle;
-
-    TypePaiement(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
 
     @Override
     public String toString() {
