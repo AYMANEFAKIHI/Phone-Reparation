@@ -75,10 +75,13 @@
 
 ## Dette technique
 
-- Importer le projet dans Eclipse sur un vrai poste (Windows) et lancer l'application : vérifié ici avec le compilateur Eclipse (ecj, 0 erreur) et JUnit 5 (67/67), mais pas dans l'IDE lui-même.
-- [x] `lib/mysql-connector-j.jar` déposé (MySQL Connector/J 26.10.0, testé) — reste à le commiter dans Git.
+- [x] Projet importé dans Eclipse sur le poste de M1 (Windows, MySQL port 3307, utilisateur dédié `repairtrack`) : l'application démarre (22/10).
+- [ ] Remplacer le driver par **`lib/mysql-connector-java-8.0.28.jar`** (version imposée) et supprimer `lib/mysql-connector-j.jar`.
+- [ ] Ajouter **`lib/lombok.jar`** + installer Lombok dans Eclipse sur les 5 postes.
+- [x] Modèles et enums passés à Lombok (27/10) : 67 tests unitaires + 111 vérifications d'intégration OK.
+- [x] Interfaces DAO + `dao/impl`, `JdbcUtil`/`RowMapper` (lambdas), streams dans les services, raccourcis lambda Swing (03/11) : 68 tests + 111 vérifications OK.
 - [x] `pom.xml` supprimé.
-- Base testée sur MariaDB 10.11 (compatible) : refaire un passage de `schema.sql` sur MySQL 8 réel (T03).
+- [x] `schema.sql` + `data.sql` exécutés sur MySQL réel via Workbench (22/10).
 - Pas encore de tests DAO automatisés (T35) : vérifications faites par des scénarios d'intégration (J1 : 18, J2 : 36, J3 : 33, J4 : 24 — toutes OK). Les transformer en tests JUnit sur une base `repairtrack_test`.
 - Les scénarios d'intégration J2 insèrent encore 3 paiements en SQL direct (sans mouvement de caisse) : à réécrire avec `PaiementService.enregistrer` lors de la migration en JUnit (T35).
 

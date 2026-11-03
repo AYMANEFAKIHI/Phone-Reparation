@@ -3,6 +3,7 @@ package ma.phonerepair.service;
 import java.util.Optional;
 import ma.phonerepair.dao.BoutiqueDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.BoutiqueDAOImpl;
 import ma.phonerepair.model.Boutique;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.service.exception.ValidationException;
@@ -11,7 +12,7 @@ import ma.phonerepair.util.ValidationUtil;
 /** Configuration de la boutique (EF-03, RG-06, RG-07). */
 public class BoutiqueService {
 
-    private final BoutiqueDAO boutiqueDAO = new BoutiqueDAO();
+    private final BoutiqueDAO boutiqueDAO = new BoutiqueDAOImpl();
 
     /** Lisible par tout le monde (nom affiché dans l'en-tête). */
     public Optional<Boutique> obtenir() {

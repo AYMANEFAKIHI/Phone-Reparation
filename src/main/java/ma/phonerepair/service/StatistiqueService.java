@@ -3,11 +3,16 @@ package ma.phonerepair.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import ma.phonerepair.dao.CreditDAO;
 import ma.phonerepair.dao.StatistiqueDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.CreditDAOImpl;
+import ma.phonerepair.dao.impl.StatistiqueDAOImpl;
 import ma.phonerepair.model.Credit;
 import ma.phonerepair.model.Intervention;
 import ma.phonerepair.model.PerformanceReparateur;
@@ -26,8 +31,8 @@ import ma.phonerepair.util.MoneyUtil;
  */
 public class StatistiqueService {
 
-    private final StatistiqueDAO statistiqueDAO = new StatistiqueDAO();
-    private final CreditDAO creditDAO = new CreditDAO();
+    private final StatistiqueDAO statistiqueDAO = new StatistiqueDAOImpl();
+    private final CreditDAO creditDAO = new CreditDAOImpl();
     private final CaisseService caisseService = new CaisseService();
 
     /** Bornes [début ; fin[ de la période contenant {@code jour} ; null, null pour TOTAL. */
@@ -45,16 +50,11 @@ public class StatistiqueService {
      * Calcul pur (sans base), testé unitairement.
      */
     public static void calculerActivite(Statistiques s, List<Intervention> livrees) {
-        BigDecimal facture = MoneyUtil.ZERO;
-        BigDecimal cout = MoneyUtil.ZERO;
-        BigDecimal margePieces = MoneyUtil.ZERO;
-        BigDecimal mo = MoneyUtil.ZERO;
-        for (Intervention i : livrees) {
-            facture = facture.add(MoneyUtil.arrondir(i.getMontantClient()));
-            cout = cout.add(MoneyUtil.arrondir(i.getCoutAchatPieces()));
-            margePieces = margePieces.add(CommissionService.calculerMargePieces(i.getPrixPiecesClient(), i.getCoutAchatPieces()));
-            mo = mo.add(MoneyUtil.arrondir(i.getMainOeuvre()));
-        }
+        BigDecimal facture = MoneyUtil.somme(livrees, Intervention::getMontantClient);
+        BigDecimal cout = MoneyUtil.somme(livrees, Intervention::getCoutAchatPieces);
+        BigDecimal margePieces = MoneyUtil.somme(livrees,
+                i -> CommissionService.calculerMargePieces(i.getPrixPiecesClient(), i.getCoutAchatPieces()));
+        BigDecimal mo = MoneyUtil.somme(livrees, Intervention::getMainOeuvre);
         BigDecimal commissions = CommissionService.totalCommissions(livrees);
         BigDecimal partProprietaire = mo.subtract(commissions);
         s.setMontantFacture(facture);
@@ -94,28 +94,25 @@ public class StatistiqueService {
             st.setCreditsQueNousDevons(CreditService.totalRestant(credits, SensCredit.RECU));
             return st;
         });
-        s.setSoldeCaisses(caisseService.toutes(acteur).stream().map(ResumeCaisse::getSolde)
-                .reduce(MoneyUtil.ZERO, BigDecimal::add));
+        s.setSoldeCaisses(MoneyUtil.somme(caisseService.toutes(acteur), ResumeCaisse::getSolde));
         return s;
     }
 
+    /** Une ligne par réparateur connu (+ ceux qui n'apparaissent que dans les interventions). */
     private static List<PerformanceReparateur> performances(List<Intervention> livrees, Map<Integer, Integer> appareils,
                                                             Map<Integer, String> noms) {
-        Map<Integer, PerformanceReparateur> parId = new java.util.LinkedHashMap<>();
-        noms.forEach((id, nom) -> parId.put(id, new PerformanceReparateur(id, nom)));
-        for (Intervention i : livrees) {
-            PerformanceReparateur p = parId.computeIfAbsent(i.getReparateurId(),
-                    id -> new PerformanceReparateur(id, "Réparateur #" + id));
-            p.setMontantFacture(p.getMontantFacture().add(MoneyUtil.arrondir(i.getMontantClient())));
-            p.setMainOeuvre(p.getMainOeuvre().add(MoneyUtil.arrondir(i.getMainOeuvre())));
-            p.setCommission(p.getCommission().add(
-                    CommissionService.calculerCommission(i.getMainOeuvre(), i.getTauxCommissionApplique())));
-        }
-        appareils.forEach((id, n) -> {
-            if (parId.containsKey(id)) {
-                parId.get(id).setAppareilsLivres(n);
-            }
-        });
-        return new java.util.ArrayList<>(parId.values());
+        Map<Integer, List<Intervention>> parReparateur = livrees.stream()
+                .collect(Collectors.groupingBy(Intervention::getReparateurId));
+        Set<Integer> ids = new LinkedHashSet<>(noms.keySet());
+        ids.addAll(parReparateur.keySet());
+        return ids.stream().map(id -> {
+            List<Intervention> siennes = parReparateur.getOrDefault(id, List.of());
+            PerformanceReparateur p = new PerformanceReparateur(id, noms.getOrDefault(id, "Réparateur #" + id));
+            p.setMontantFacture(MoneyUtil.somme(siennes, Intervention::getMontantClient));
+            p.setMainOeuvre(MoneyUtil.somme(siennes, Intervention::getMainOeuvre));
+            p.setCommission(CommissionService.totalCommissions(siennes));
+            p.setAppareilsLivres(appareils.getOrDefault(id, 0));
+            return p;
+        }).collect(Collectors.toList());
     }
 }

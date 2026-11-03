@@ -1,5 +1,6 @@
 package ma.phonerepair.presentation.reparateur;
 
+import java.util.stream.Stream;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -70,10 +71,8 @@ public class AppareilForm extends JPanel {
     }
 
     public void vider() {
-        for (JTextField f : new JTextField[] {champMarque, champModele, champImei, champEtat, champDescription,
-                champPanne}) {
-            f.setText("");
-        }
+        Stream.of(champMarque, champModele, champImei, champEtat, champDescription, champPanne)
+                .forEach(f -> f.setText(""));
         champMarque.requestFocusInWindow();
     }
 }

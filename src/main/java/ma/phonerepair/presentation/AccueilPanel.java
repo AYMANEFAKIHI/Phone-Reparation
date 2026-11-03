@@ -2,8 +2,6 @@ package ma.phonerepair.presentation;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.time.LocalDate;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -63,12 +61,7 @@ public class AccueilPanel extends JPanel {
 
         // Premier affichage (CardLayout n'envoie pas componentShown pour la carte initiale)
         javax.swing.SwingUtilities.invokeLater(this::charger);
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                charger();
-            }
-        });
+        UiUtil.quandAffiche(this, this::charger);
     }
 
     private void charger() {

@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Collection;
 import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * Opérations sur les montants (toujours en BigDecimal, 2 décimales, arrondi HALF_UP — RG-21).
@@ -29,6 +31,14 @@ public final class MoneyUtil {
             return ZERO;
         }
         return montant.multiply(taux).divide(CENT, ECHELLE, ARRONDI);
+    }
+
+    /**
+     * Somme d'un montant extrait de chaque élément. Ex. :
+     * {@code MoneyUtil.somme(interventions, Intervention::getMainOeuvre)}
+     */
+    public static <T> BigDecimal somme(Collection<T> elements, Function<T, BigDecimal> montant) {
+        return elements.stream().map(montant).map(MoneyUtil::arrondir).reduce(ZERO, BigDecimal::add);
     }
 
     public static boolean estNegatif(BigDecimal montant) {

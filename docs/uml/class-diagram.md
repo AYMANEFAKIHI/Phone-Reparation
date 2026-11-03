@@ -1,6 +1,6 @@
 # Diagramme de classes — RepairTrack
 
-> Correspond au code de `src/main/java/ma/phonerepair`. Les getters/setters ne sont pas représentés. Toutes les classes représentées sont implémentées (jalons J1 à J4) — leurs signatures sont un contrat pour l'équipe.
+> Correspond au code de `src/main/java/ma/phonerepair`. Les getters/setters ne sont pas représentés (ils sont générés par Lombok dans le package `model`). Toutes les classes représentées sont implémentées (jalons J1 à J4) — leurs signatures sont un contrat pour l'équipe.
 
 ## 1. Modèle (`model`, `model.enums`)
 

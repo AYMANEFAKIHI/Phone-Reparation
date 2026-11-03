@@ -1,5 +1,8 @@
 package ma.phonerepair.presentation;
 
+import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -42,16 +45,12 @@ public final class UiTheme {
     }
 
     private static String choisirPolice() {
-        String[] disponibles = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
-                .getAvailableFontFamilyNames();
-        for (String souhaitee : new String[] {"Segoe UI", "Ubuntu", "DejaVu Sans"}) {
-            for (String d : disponibles) {
-                if (d.equals(souhaitee)) {
-                    return d;
-                }
-            }
-        }
-        return Font.SANS_SERIF;
+        List<String> disponibles = Arrays.asList(java.awt.GraphicsEnvironment
+                .getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+        return Stream.of("Segoe UI", "Ubuntu", "DejaVu Sans")
+                .filter(disponibles::contains)
+                .findFirst()
+                .orElse(Font.SANS_SERIF);
     }
 
     /** À appeler une fois au démarrage, avant de créer la première fenêtre. */
@@ -61,11 +60,10 @@ public final class UiTheme {
         } catch (Exception e) {
             // On garde le look & feel par défaut : pas bloquant.
         }
-        for (String cle : new String[] {"Label.font", "TextField.font", "PasswordField.font", "ComboBox.font",
+        Stream.of("Label.font", "TextField.font", "PasswordField.font", "ComboBox.font",
                 "Table.font", "TableHeader.font", "OptionPane.messageFont", "OptionPane.buttonFont",
-                "Spinner.font", "TextArea.font", "CheckBox.font", "Button.font"}) {
-            UIManager.put(cle, POLICE);
-        }
+                "Spinner.font", "TextArea.font", "CheckBox.font", "Button.font")
+                .forEach(cle -> UIManager.put(cle, POLICE));
     }
 
     public static JLabel titre(String texte) {
@@ -148,6 +146,19 @@ public final class UiTheme {
         javax.swing.table.DefaultTableCellRenderer r = new javax.swing.table.DefaultTableCellRenderer();
         r.setHorizontalAlignment(JLabel.RIGHT);
         return r;
+    }
+
+    /** Aligne à droite les colonnes de montants. Ex. {@code colonnesMontant(table, 1, 2, 3)} */
+    public static void colonnesMontant(JTable table, int... colonnes) {
+        Arrays.stream(colonnes)
+                .forEach(c -> table.getColumnModel().getColumn(c).setCellRenderer(rendreMontant()));
+    }
+
+    /** Largeurs préférées des colonnes, dans l'ordre. */
+    public static void largeursColonnes(JTable table, int... largeurs) {
+        for (int c = 0; c < largeurs.length && c < table.getColumnCount(); c++) {
+            table.getColumnModel().getColumn(c).setPreferredWidth(largeurs[c]);
+        }
     }
 
     public static void styliserTable(JTable table) {

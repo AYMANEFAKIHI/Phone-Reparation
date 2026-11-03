@@ -79,7 +79,7 @@ public class DetailReparationDialog extends JDialog {
         table.setAutoCreateRowSorter(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(AppareilsTableModel.COL_STATUT).setCellRenderer(UiTheme.rendreStatut());
-        table.getColumnModel().getColumn(AppareilsTableModel.COL_MONTANT).setCellRenderer(UiTheme.rendreMontant());
+        UiTheme.colonnesMontant(table, AppareilsTableModel.COL_MONTANT);
         racine.add(new JScrollPane(table), BorderLayout.CENTER);
         racine.add(construireBoutons(), BorderLayout.SOUTH);
 
@@ -211,12 +211,10 @@ public class DetailReparationDialog extends JDialog {
             return;
         }
         DefaultTableModel m = new DefaultTableModel(new String[] {"Date", "De", "Vers", "Par", "Commentaire"}, 0);
-        for (HistoriqueStatut x : h) {
-            m.addRow(new Object[] {DateUtil.formater(x.getDateChangement()),
-                    x.getAncienStatut() == null ? "—" : x.getAncienStatut().getLibelle(),
-                    x.getNouveauStatut().getLibelle(), x.getNomUtilisateur(),
-                    x.getCommentaire() == null ? "" : x.getCommentaire()});
-        }
+        h.forEach(x -> m.addRow(new Object[] {DateUtil.formater(x.getDateChangement()),
+                x.getAncienStatut() == null ? "—" : x.getAncienStatut().getLibelle(),
+                x.getNouveauStatut().getLibelle(), x.getNomUtilisateur(),
+                x.getCommentaire() == null ? "" : x.getCommentaire()}));
         JTable t = new JTable(m);
         UiTheme.styliserTable(t);
         JScrollPane sp = new JScrollPane(t);

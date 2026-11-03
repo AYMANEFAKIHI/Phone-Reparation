@@ -4,6 +4,20 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/).
 
 ## [Non publié]
 
+### Modifié — 2026-11-03 (interfaces, lambdas, simplification)
+- **Interfaces DAO** : les 12 DAO deviennent des interfaces (`dao`) avec une implémentation MySQL chacune (`dao/impl/*DAOImpl`). Les services sont typés par l'interface.
+- **`RowMapper`** (interface fonctionnelle) + **`JdbcUtil`** (`liste`, `un`, `map`, `montant`, `nombre`, `executer`, `ajouter`, `verrouillerLigne`) : tout le JDBC répétitif est écrit une fois, les DAO passent leur mapping en lambda / référence de méthode. Les implémentations font ~800 lignes contre ~1 380 avant (le reste = interfaces documentées). `DaoUtil` supprimé, fragments SQL partagés dans `dao/impl/SqlCommun`.
+- **Streams / lambdas dans les services** : `MoneyUtil.somme(liste, fonction)` remplace les boucles d'addition (statistiques, commissions, solde de caisse) ; performance par réparateur avec `groupingBy` ; `CaisseService` simplifié (`caisse()` / `completer()` réutilisés).
+- **UI** : `UiUtil` sans interface `Action` maison (utilise `Runnable` / `Supplier`), nouveaux raccourcis `quandAffiche`, `surDoubleClic`, `surSaisie` (plus de classes anonymes dans les écrans) ; `UiTheme.colonnesMontant` / `largeursColonnes` ; remplissage des tableaux en `forEach`.
+- Correction trouvée par les tests d'intégration pendant le refactoring : une valeur SQL `NULL` (ex. `MAX()` sur table vide) donne un `Optional` vide.
+- Aucun changement de comportement : 68 tests unitaires et 111 vérifications d'intégration verts, écrans vérifiés.
+
+### Modifié — 2026-10-27 (Lombok + Connector/J 8.0.28)
+- **Lombok** : les 20 classes du package `model` et les 8 enums utilisent `@Getter`, `@Setter`, `@NoArgsConstructor`, `@AllArgsConstructor`, `@RequiredArgsConstructor` (getters/setters manuels supprimés). Pas de `@Data` (voir `architecture.md`).
+- Driver imposé **MySQL Connector/J 8.0.28** : `.classpath` pointe sur `lib/mysql-connector-java-8.0.28.jar` et `lib/lombok.jar`.
+- `lib/LISEZ-MOI.txt` : téléchargement des deux jars + installation de Lombok dans Eclipse.
+- Aucun changement de comportement : 67 tests unitaires et 111 vérifications d'intégration toujours verts.
+
 ### Modifié — 2026-10-14 (Eclipse sans Maven)
 - Le projet devient un **projet Eclipse** : `.project`, `.classpath` (src/main/java, src/test/java, JRE 17, JUnit 5 d'Eclipse, `lib/mysql-connector-j.jar`), `.settings/` (Java 17, UTF-8), `RepairTrack.launch`, `Tests RepairTrack.launch`, `lib/LISEZ-MOI.txt`.
 - `pom.xml` n'est plus utilisé (à supprimer). `.gitignore` adapté : la configuration Eclipse est partagée.

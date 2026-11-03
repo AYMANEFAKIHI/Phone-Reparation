@@ -10,14 +10,14 @@
 | Intégration | scénarios exécutés sur une base de test | oui | services + DAO + contraintes |
 | Fonctionnel | manuel, depuis l'interface | oui | scénarios de démo S1–S10 |
 
-Les tests unitaires ne touchent jamais la base : ils doivent passer sur n'importe quel poste (Eclipse : clic droit sur `src/test/java` > *Run As > JUnit Test*). Vérifié le 14/10 avec le compilateur Eclipse (ecj) : 0 erreur, 0 avertissement, 67/67 tests verts.
+Les tests unitaires ne touchent jamais la base : ils doivent passer sur n'importe quel poste (Eclipse : clic droit sur `src/test/java` > *Run As > JUnit Test*). Vérifié le 03/11 avec le compilateur Eclipse (ecj) + Lombok : 0 erreur, 0 avertissement, 68/68 tests verts.
 
-## 2. Tests unitaires (67 — tous OK)
+## 2. Tests unitaires (68 — tous OK)
 
 | Classe | Tests | Règles couvertes |
 |--------|-------|------------------|
 | `PasswordUtilTest` | 6 | RG-04 : hash ≠ mot de passe, sel aléatoire, hash de `data.sql` valide |
-| `MoneyUtilTest` | 5 | RG-21, RG-34 : commission 100 × 60 % = 60,00, arrondi HALF_UP, saisie « 1 250,50 » |
+| `MoneyUtilTest` | 6 | RG-21, RG-34 : commission 100 × 60 % = 60,00, arrondi HALF_UP, saisie « 1 250,50 », somme par lambda |
 | `ValidationUtilTest` | 5 | RG-07 : téléphones marocains, username, mot de passe ≥ 6 |
 | `CodeGeneratorTest` | 5 | RG-11 : format `REP-2026-000123`, limites, ordre des codes |
 | `StatutReparationTest` | 4 | RG-15, RG-17 : transitions autorisées / interdites, états finaux |

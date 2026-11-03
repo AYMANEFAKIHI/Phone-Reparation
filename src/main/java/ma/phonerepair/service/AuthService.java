@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import ma.phonerepair.dao.TransactionManager;
 import ma.phonerepair.dao.UtilisateurDAO;
+import ma.phonerepair.dao.impl.UtilisateurDAOImpl;
 import ma.phonerepair.model.Utilisateur;
 import ma.phonerepair.service.exception.BusinessException;
 import ma.phonerepair.service.exception.ValidationException;
@@ -16,7 +17,7 @@ public class AuthService {
     private static final Logger LOG = Logger.getLogger(AuthService.class.getName());
     static final String MSG_IDENTIFIANTS = "Nom d'utilisateur ou mot de passe incorrect.";
 
-    private final UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
+    private final UtilisateurDAO utilisateurDAO = new UtilisateurDAOImpl();
 
     /**
      * Vérifie les identifiants. Le mot de passe est effacé de la mémoire après usage.

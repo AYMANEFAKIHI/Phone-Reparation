@@ -14,8 +14,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import ma.phonerepair.model.Appareil;
 import ma.phonerepair.model.Intervention;
 import ma.phonerepair.model.Utilisateur;
@@ -76,14 +74,7 @@ public class InterventionDialog extends JDialog {
                     + existante.getTauxCommissionApplique().stripTrailingZeros().toPlainString() + " %"), c);
 
         remplir();
-        DocumentListener recalcul = new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { recalculer(); }
-            @Override public void removeUpdate(DocumentEvent e) { recalculer(); }
-            @Override public void changedUpdate(DocumentEvent e) { recalculer(); }
-        };
-        for (JTextField f : new JTextField[] {champCout, champPrix, champMainOeuvre}) {
-            f.getDocument().addDocumentListener(recalcul);
-        }
+        UiUtil.surSaisie(this::recalculer, champCout, champPrix, champMainOeuvre);
         recalculer();
 
         JButton annuler = UiTheme.boutonSecondaire("Annuler");

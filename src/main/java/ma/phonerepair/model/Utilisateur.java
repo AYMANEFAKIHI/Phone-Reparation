@@ -2,11 +2,18 @@ package ma.phonerepair.model;
 
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import ma.phonerepair.model.enums.Role;
 
 /**
  * Compte de connexion (propriétaire ou réparateur). Le profil réparateur est facultatif (RG-02).
  */
+@Getter
+@Setter
+@NoArgsConstructor
 public class Utilisateur {
 
     private int id;
@@ -18,81 +25,6 @@ public class Utilisateur {
     private boolean actif = true;
     private LocalDateTime dateCreation;
     private Reparateur profilReparateur;
-
-    public Utilisateur() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getNomComplet() {
-        return nomComplet;
-    }
-
-    public void setNomComplet(String nomComplet) {
-        this.nomComplet = nomComplet;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public boolean isActif() {
-        return actif;
-    }
-
-    public void setActif(boolean actif) {
-        this.actif = actif;
-    }
-
-    public LocalDateTime getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDateTime dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Reparateur getProfilReparateur() {
-        return profilReparateur;
-    }
-
-    public void setProfilReparateur(Reparateur profilReparateur) {
-        this.profilReparateur = profilReparateur;
-    }
 
     public boolean estProprietaire() {
         return role == Role.PROPRIETAIRE;

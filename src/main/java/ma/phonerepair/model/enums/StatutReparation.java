@@ -3,9 +3,14 @@ package ma.phonerepair.model.enums;
 import java.util.EnumSet;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Statut d'un appareil (RG-15). La matrice des transitions est définie ici, une seule fois.
  */
+@Getter
+@RequiredArgsConstructor
 public enum StatutReparation {
     RECEIVED("Reçu"),
     DIAGNOSING("En diagnostic"),
@@ -17,14 +22,6 @@ public enum StatutReparation {
     CANCELLED("Annulé");
 
     private final String libelle;
-
-    StatutReparation(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
 
     /** Statuts vers lesquels on peut passer depuis ce statut. */
     public Set<StatutReparation> suivantsAutorises() {

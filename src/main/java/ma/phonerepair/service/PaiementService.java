@@ -8,6 +8,9 @@ import ma.phonerepair.dao.CaisseDAO;
 import ma.phonerepair.dao.PaiementDAO;
 import ma.phonerepair.dao.ReparationDAO;
 import ma.phonerepair.dao.TransactionManager;
+import ma.phonerepair.dao.impl.CaisseDAOImpl;
+import ma.phonerepair.dao.impl.PaiementDAOImpl;
+import ma.phonerepair.dao.impl.ReparationDAOImpl;
 import ma.phonerepair.model.DossierPaiement;
 import ma.phonerepair.model.MouvementCaisse;
 import ma.phonerepair.model.Paiement;
@@ -31,9 +34,9 @@ import ma.phonerepair.util.ValidationUtil;
  */
 public class PaiementService {
 
-    private final ReparationDAO reparationDAO = new ReparationDAO();
-    private final PaiementDAO paiementDAO = new PaiementDAO();
-    private final CaisseDAO caisseDAO = new CaisseDAO();
+    private final ReparationDAO reparationDAO = new ReparationDAOImpl();
+    private final PaiementDAO paiementDAO = new PaiementDAOImpl();
+    private final CaisseDAO caisseDAO = new CaisseDAOImpl();
     private static final Logger LOG = Logger.getLogger(PaiementService.class.getName());
 
     /**

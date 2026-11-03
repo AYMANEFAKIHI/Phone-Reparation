@@ -16,7 +16,21 @@
 | Hash mot de passe | PBKDF2WithHmacSHA256 (inclus dans le JDK) | Pas de bibliothèque externe |
 | Config BD | Fichier `db.properties` (hors Git) + `db.properties.example` (dans Git) | Simple à comprendre, aucun mot de passe dans le code |
 
-**Bibliothèques au total : 2** — `lib/mysql-connector-j.jar` (déposé dans le projet) et JUnit 5 (fourni par Eclipse, conteneur `JUNIT_CONTAINER/5`). Toute nouvelle bibliothèque doit être approuvée par M1.
+**Bibliothèques au total : 3** — `lib/mysql-connector-java-8.0.28.jar` (driver JDBC, version imposée), `lib/lombok.jar` (génération de code à la compilation) et JUnit 5 (fourni par Eclipse, conteneur `JUNIT_CONTAINER/5`). Toute nouvelle bibliothèque doit être approuvée par M1.
+
+### Utilisation de Lombok (règles d'équipe)
+
+| Où | Annotations | Pourquoi |
+|----|-------------|----------|
+| Classes du package `model` (entités) | `@Getter @Setter @NoArgsConstructor` | supprime ~1 000 lignes de getters/setters ; les DAO remplissent les objets avec les setters |
+| Objets en lecture seule (`SituationFinanciere`, `SuiviClient.LigneSuivi`) | `@Getter @AllArgsConstructor` + champs `final` | immuables : pas de setter possible |
+| `PerformanceReparateur` | `@Getter @Setter @RequiredArgsConstructor` | id et nom `final` (sans setter), compteurs modifiables |
+| Enums (`Role`, `StatutReparation`…) | `@Getter @RequiredArgsConstructor` | génère `getLibelle()` et le constructeur |
+
+- **Pas de `@Data` ni de `@EqualsAndHashCode`** sur les entités : `equals/hashCode` sur des objets modifiables avec des listes (réparation ↔ appareils) provoque des bugs et des boucles ; `toString` est écrit à la main quand il sert à l'affichage (`Client`, `Utilisateur`).
+- Les méthodes métier simples restent écrites à la main dans le modèle (`getMontantClient()`, `getCommissionDue()`, `estProprietaire()`…).
+- Lombok n'est utilisé que dans `model` : services, DAO et écrans n'ont pas d'annotation Lombok (code explicite, plus facile à expliquer en soutenance).
+- Eclipse doit avoir Lombok installé (agent) — voir `lib/LISEZ-MOI.txt`.
 
 ## 2. Couches
 
@@ -50,7 +64,7 @@ flowchart TD
 repairtrack/
 ├── .project, .classpath, .settings/   # projet Eclipse
 ├── RepairTrack.launch, Tests RepairTrack.launch
-├── lib/mysql-connector-j.jar
+├── lib/mysql-connector-java-8.0.28.jar, lib/lombok.jar
 ├── README.md, TODO.md, CHANGELOG.md
 ├── db.properties.example          # copié en db.properties (ignoré par Git)
 ├── database/
@@ -70,14 +84,17 @@ repairtrack/
     │   │   └── enums/
     │   │       ├── Role, StatutReparation, StatutGlobal, StatutPaiement, Periode,
     │   │       └── TypePaiement, TypeMouvement, SensCredit, StatutCredit
-    │   ├── dao/
+    │   ├── dao/                     # INTERFACES (ce que les services voient)
     │   │   ├── BoutiqueDAO, UtilisateurDAO, ReparateurDAO, ClientDAO, ReparationDAO,
     │   │   ├── AppareilDAO, InterventionDAO, HistoriqueStatutDAO, PaiementDAO,
     │   │   ├── CaisseDAO, CreditDAO, StatistiqueDAO
-    │   │   ├── HistoriqueStatutDAO.java
-    │   │   ├── TransactionManager.java  # commit / rollback centralisé
-    │   │   ├── DaoUtil.java             # id généré, petites aides JDBC
-    │   │   └── DataAccessException.java
+    │   │   ├── RowMapper.java           # interface fonctionnelle : ResultSet → objet (lambda)
+    │   │   ├── JdbcUtil.java            # liste / un / ajouter / executer… (tout le JDBC répétitif)
+    │   │   ├── TransactionManager.java  # commit / rollback centralisé (lambda Travail)
+    │   │   ├── DataAccessException.java
+    │   │   └── impl/                    # IMPLÉMENTATIONS MySQL
+    │   │       ├── BoutiqueDAOImpl, UtilisateurDAOImpl, … (une par interface)
+    │   │       └── SqlCommun.java       # fragments SQL partagés (total, payé)
     │   ├── service/
     │   │   ├── AuthService, BoutiqueService, ReparateurService, ClientService,
     │   │   ├── ReparationService, AppareilService, PaiementService, CommissionService,
@@ -114,7 +131,7 @@ repairtrack/
 | Ajout de `HistoriqueStatut`, `MouvementCaisse`, `RemboursementCredit` (model + DAO) | Tables exigées par le sujet. |
 | Ajout de `ReparateurService`, `SuiviService`, `HistoriqueStatutDAO` | Évite de surcharger `AuthService` / `ReparationService`. |
 | Sous-packages `service/exception`, `model/enums` | Les 6 packages principaux restent inchangés. |
-| Pas d'interfaces DAO | Une seule implémentation (MySQL) → une interface n'apporte rien ici. |
+| Interfaces DAO + `dao/impl` | Les services dépendent de l'interface (`ClientDAO`), pas de MySQL (`ClientDAOImpl`) : on pourrait changer de base ou brancher un faux DAO pour les tests sans toucher aux services. |
 
 ## 4. Modèle de données (résumé — détail dans `database.md`)
 
@@ -191,6 +208,51 @@ return TransactionManager.enTransaction(conn -> {
 // Lecture simple
 List<Utilisateur> comptes = TransactionManager.lecture(utilisateurDAO::listerTous);
 ```
+
+### Interfaces et lambdas dans la couche DAO
+
+Chaque DAO = une **interface** dans `dao` + une **implémentation** dans `dao/impl`. Le service ne connaît que l'interface :
+
+```java
+private final ClientDAO clientDAO = new ClientDAOImpl();   // type = interface
+```
+
+Le code JDBC répétitif (PreparedStatement, paramètres, boucle `while (rs.next())`, fermeture) est écrit **une seule fois** dans `JdbcUtil`. Une implémentation ne contient plus que son SQL et son mapping, passé en **lambda** ou en **référence de méthode** (`RowMapper` est une interface fonctionnelle) :
+
+```java
+@Override
+public List<Client> trouverParTelephone(Connection conn, String telephone) throws SQLException {
+    return liste(conn, "SELECT * FROM client WHERE telephone = ? ORDER BY nom_complet", this::mapper, telephone);
+}
+
+@Override
+public Optional<BigDecimal> trouverTaux(Connection conn, int id) throws SQLException {
+    return un(conn, "SELECT taux_commission FROM reparateur WHERE id = ?", rs -> rs.getBigDecimal(1), id);
+}
+```
+
+| Méthode `JdbcUtil` | Usage |
+|--------------------|-------|
+| `liste(conn, sql, mapper, params…)` | SELECT → `List<T>` |
+| `un(conn, sql, mapper, params…)` | SELECT → `Optional<T>` (aucune ligne ou valeur NULL = vide) |
+| `map(conn, sql, cle, valeur, params…)` | SELECT de 2 colonnes → `Map<K, V>` |
+| `montant(...)`, `nombre(...)` | SUM / COUNT |
+| `executer(...)` | UPDATE, DELETE, INSERT sans id |
+| `ajouter(...)` | INSERT → id AUTO_INCREMENT généré |
+| `verrouillerLigne(...)` | `SELECT … FOR UPDATE` |
+
+Les paramètres restent des « ? » de `PreparedStatement` (enum → `name()`, `LocalDate` → `DATE`, `LocalDateTime` → `DATETIME`, `null` → `NULL`) : aucune saisie n'est concaténée dans le SQL.
+
+### Lambdas ailleurs
+
+| Où | Exemple |
+|----|---------|
+| Transactions | `TransactionManager.enTransaction(conn -> { … })` |
+| Calculs d'argent | `MoneyUtil.somme(interventions, Intervention::getMainOeuvre)` |
+| Regroupements | `stream().collect(Collectors.groupingBy(Intervention::getAppareilId))` |
+| Boutons | `bouton.addActionListener(e -> enregistrer())` |
+| Événements Swing | `UiUtil.quandAffiche(this, this::charger)`, `UiUtil.surDoubleClic(table, this::ouvrir)`, `UiUtil.surSaisie(this::recalculer, champ1, champ2)` |
+| Appels de service depuis l'UI | `UiUtil.appeler(this, () -> service.lister(acteur))` (erreurs affichées proprement) |
 
 `TransactionManager` traduit toute `SQLException` en `DataAccessException` (et la journalise). Le service peut tester `e.concerne("uq_utilisateur_username")` pour transformer une violation de contrainte en message clair.
 
